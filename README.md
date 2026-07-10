@@ -6,7 +6,7 @@ Projeto acadêmico desenvolvido para a disciplina de **IoT / Sistemas Embarcados
 
 ---
 
-## 📋 Sumário
+## Sumário
 
 - [Sobre o projeto](#-sobre-o-projeto)
 - [Funcionalidades](#-funcionalidades)
