@@ -1,4 +1,4 @@
-# 🌱 Vaso Inteligente — Irrigação Automática com ESP32
+#  Vaso Inteligente — Irrigação Automática com ESP32
 
 Sistema embarcado de irrigação automatizada que monitora umidade do solo, temperatura e umidade do ar em tempo real, decidindo de forma autônoma quando irrigar uma planta — eliminando o erro humano no processo de rega.
 
@@ -21,7 +21,7 @@ Projeto acadêmico desenvolvido para a disciplina de **IoT / Sistemas Embarcados
 
 ---
 
-## 🎯 Sobre o projeto
+##  Sobre o projeto
 
 Plantas domésticas frequentemente morrem por **erro humano no processo de irrigação** — seja por excesso de água (apodrecimento da raiz) ou falta de água (desidratação). O *Vaso Inteligente* resolve esse problema substituindo o "achismo" por decisões baseadas em dados reais, lidos diretamente do ambiente.
 
@@ -29,19 +29,19 @@ O sistema roda em um **ESP32**, que além de controlar os sensores e a bomba, ho
 
 ---
 
-## ⚙️ Funcionalidades
+##  Funcionalidades
 
-- ✅ Leitura contínua da umidade do solo (sensor capacitivo)
-- ✅ Leitura de temperatura e umidade do ar (DHT22)
-- ✅ Irrigação automática via bomba + relé, com lógica **adaptativa** (não apenas um limite fixo)
-- ✅ Bloqueio de segurança em temperaturas extremas
-- ✅ Dashboard web em tempo real, hospedado no próprio ESP32
-- ✅ Controle manual da bomba via navegador (ligar/desligar)
-- ✅ Atualização dos dados a cada 1 segundo, sem bloquear o sistema (non-blocking)
+-  Leitura contínua da umidade do solo (sensor capacitivo)
+-  Leitura de temperatura e umidade do ar (DHT22)
+-  Irrigação automática via bomba + relé, com lógica **adaptativa** (não apenas um limite fixo)
+-  Bloqueio de segurança em temperaturas extremas
+-  Dashboard web em tempo real, hospedado no próprio ESP32
+-  Controle manual da bomba via navegador (ligar/desligar)
+-  Atualização dos dados a cada 1 segundo, sem bloquear o sistema (non-blocking)
 
 ---
 
-## 🧩 Arquitetura e Componentes
+##  Arquitetura e Componentes
 
 | Componente | Função | Pino |
 |---|---|---|
@@ -76,7 +76,7 @@ O sistema roda em um **ESP32**, que além de controlar os sensores e a bomba, ho
 
 ---
 
-## 🔌 Esquema de Ligação
+##  Esquema de Ligação
 
 | De | Para | Observação |
 |---|---|---|
@@ -93,11 +93,11 @@ O sistema roda em um **ESP32**, que além de controlar os sensores e a bomba, ho
 | Relé NO | Bomba (+) | Fecha o contato quando ativa |
 | Bomba (−) | Fonte externa GND | **GND comum com o ESP32 é obrigatório** |
 
-> ⚠️ **Atenção:** a bomba exige alimentação externa (ex: 4x pilha AA ou fonte 5V), pois o ESP32 não fornece corrente suficiente via USB. O **GND da fonte externa deve ser conectado ao GND do ESP32** para o circuito funcionar corretamente.
+>  **Atenção:** a bomba exige alimentação externa (ex: 4x pilha AA ou fonte 5V), pois o ESP32 não fornece corrente suficiente via USB. O **GND da fonte externa deve ser conectado ao GND do ESP32** para o circuito funcionar corretamente.
 
 ---
 
-## 🧠 Como o código funciona
+##  Como o código funciona
 
 A lógica de decisão **não usa apenas um limite fixo de umidade** — ela se adapta às condições ambientais:
 
@@ -130,7 +130,7 @@ O `loop()` usa `millis()` em vez de `delay()`, permitindo que o servidor web con
 
 ---
 
-## 🌐 Dashboard Web
+##  Dashboard Web
 
 O ESP32 hospeda uma página web acessível pelo IP local (ex: `http://192.168.0.15`), exibindo:
 
@@ -142,7 +142,7 @@ O ESP32 hospeda uma página web acessível pelo IP local (ex: `http://192.168.0.
 
 A página se atualiza automaticamente a cada 2 segundos via `fetch()` em JavaScript, sem necessidade de recarregar.
 
-### 📸 Screenshots
+###  Screenshots
 
 **Visão Geral** — leituras em tempo real e controle manual da bomba
 
@@ -166,7 +166,7 @@ A página se atualiza automaticamente a cada 2 segundos via `fetch()` em JavaScr
 
 ---
 
-## 🚀 Instalação
+##  Instalação
 
 ### Pré-requisitos
 - [Arduino IDE](https://www.arduino.cc/en/software) com suporte a placas ESP32
@@ -191,7 +191,7 @@ A página se atualiza automaticamente a cada 2 segundos via `fetch()` em JavaScr
 
 ---
 
-## 📡 API / Endpoints
+##  API / Endpoints
 
 | Rota | Método | Descrição |
 |---|---|---|
@@ -218,7 +218,7 @@ A página se atualiza automaticamente a cada 2 segundos via `fetch()` em JavaScr
 
 ---
 
-## 🔮 Limitações e melhorias futuras
+##  Limitações e melhorias futuras
 
 - [ ] Adiar irrigação em vez de bloquear (usando RTC para agendar horários mais amenos)
 - [ ] Alertas via Telegram quando o solo estiver crítico
@@ -229,7 +229,7 @@ A página se atualiza automaticamente a cada 2 segundos via `fetch()` em JavaScr
 
 ---
 
-## 👤 Autor
+##  Autor
 
 **Lucas** — IFPE Campus Palmares
 Curso: Análise e Desenvolvimento de Sistemas (ADS)
@@ -237,6 +237,6 @@ Disciplina: IoT / Sistemas Embarcados
 
 ---
 
-## 📄 Licença
+##  Licença
 
 Projeto acadêmico de uso livre para fins educacionais.
