@@ -126,7 +126,7 @@ footer{text-align:center;font-size:.7em;color:var(--muted);margin-top:6px}
 <body>
 
 <header>
-  <h1>🌿 Irriga<span>Smart</span></h1>
+  <h1> Irriga<span>Smart</span></h1>
   <div id="clock">—</div>
 </header>
 
@@ -236,9 +236,9 @@ footer{text-align:center;font-size:.7em;color:var(--muted);margin-top:6px}
   <section>
     <h2>Baixar dados em CSV</h2>
     <div class="links" style="margin-bottom:16px">
-      <a href="/download/historico">📈 historico.csv</a>
-      <a href="/download/eventos">💧 eventos.csv</a>
-      <a href="/download/stats">📊 stats.csv</a>
+      <a href="/download/historico"> historico.csv</a>
+      <a href="/download/eventos"> eventos.csv</a>
+      <a href="/download/stats"> stats.csv</a>
     </div>
     <div class="schema"><b>historico.csv</b>horario, temperatura, umidadeAr, umidadeSolo</div>
     <div class="schema"><b>eventos.csv</b>horario, duracao_s, umidadeAntes, umidadeDepois, automatica</div>
@@ -246,7 +246,7 @@ footer{text-align:center;font-size:.7em;color:var(--muted);margin-top:6px}
   </section>
 </div>
 
-<footer>CONNEPI 2026 · Recife – PE</footer>
+<footer>CONNEPI 2026</footer>
 
 <script>
 function showTab(id, btn){
