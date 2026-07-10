@@ -1,12 +1,3 @@
-// ============================================================
-// Sistema de Irrigação Inteligente – ESP32  (v3.0)
-// CONNEPI 2026 | Recife – PE
-//
-// Novidades v3.0:
-//  • Persistência em CSV via LittleFS (histórico, eventos, stats)
-//  • Download dos CSVs direto pelo navegador
-//  • Dashboard redesenhado: tema escuro, sidebar, dados em tempo real
-// ============================================================
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -16,66 +7,59 @@
 #include <LittleFS.h>
 #include "webpage.h"
 
-// ─────────────────────────────────────────────
+
 // CONFIGURAÇÕES WiFi
-// ─────────────────────────────────────────────
+
 const char* WIFI_SSID = "Larissa-Pernambuco_Telecom";
 const char* WIFI_PASS = "19Ki73wi@";
 
-// ─────────────────────────────────────────────
+
 // NTP  (Recife = UTC-3, sem horário de verão)
-// ─────────────────────────────────────────────
+
 const long  GMT_OFFSET_SEC     = -3L * 3600L;
 const int   DAYLIGHT_OFFSET_SEC = 0;
 
-// ─────────────────────────────────────────────
+
 // PINOS
-// ─────────────────────────────────────────────
+
 const int PINO_SENSOR_SOLO = 34;
 const int PINO_RELE        = 26;
 const int PINO_DHT         = 33;
 
-// ─────────────────────────────────────────────
+
 // CALIBRAÇÃO DO SENSOR DE SOLO
-// ─────────────────────────────────────────────
+
 int VALOR_SECO  = 2800;
 int VALOR_UMIDO = 1400;
 
-// ─────────────────────────────────────────────
+
 // PARÂMETROS DE IRRIGAÇÃO
-// ─────────────────────────────────────────────
+
 const float UMIDADE_MINIMA          = 40.0f;
 const int   TEMPO_BOMBA_MS          = 1000;
 const int   ESPERA_DEPOIS_BOMBA_MS  = 10000;
 
-// ─────────────────────────────────────────────
+
 // REGRAS DHT22
-// ─────────────────────────────────────────────
+
 const float TEMPERATURA_MAXIMA  = 35.0f;
 const float TEMPERATURA_CALOR   = 30.0f;
 const float UMIDADE_AR_HUMIDO   = 80.0f;
 const float REDUCAO_HUMIDADE    = 0.70f;
 
-// ─────────────────────────────────────────────
+
 // ESTIMATIVA DE CONSUMO
-// ─────────────────────────────────────────────
+
 const float VAZAO_BOMBA_L_MIN        = 1.6f;
 const float IRRIGACAO_MANUAL_MIN_DIA = 40.0f;
 
-// ─────────────────────────────────────────────
-// DHT22
-// ─────────────────────────────────────────────
+
 #define DHTTYPE DHT22
 DHT dht(PINO_DHT, DHTTYPE);
 
-// ─────────────────────────────────────────────
-// WebServer
-// ─────────────────────────────────────────────
 WebServer server(80);
 
-// ============================================================
-// ESTRUTURAS DE DADOS
-// ============================================================
+
 
 struct DadoHistorico {
   char  horario[6];
@@ -92,9 +76,7 @@ struct EventoIrrigacao {
   bool          automatica;
 };
 
-// ─────────────────────────────────────────────
-// BUFFERS CIRCULARES
-// ─────────────────────────────────────────────
+
 const int MAX_HISTORICO = 144;
 const int MAX_EVENTOS   = 50;
 
@@ -106,17 +88,12 @@ EventoIrrigacao eventos[MAX_EVENTOS];
 int eventoIndex = 0;
 int eventoCount = 0;
 
-// ─────────────────────────────────────────────
-// ESTATÍSTICAS
-// ─────────────────────────────────────────────
+
 unsigned long totalLeituras       = 0;
 unsigned long totalAcionamentos   = 0;
 unsigned long tempoTotalBombaMs   = 0;
 unsigned long inicioMonitoramento = 0;
 
-// ─────────────────────────────────────────────
-// ESTADO DO SISTEMA
-// ─────────────────────────────────────────────
 bool          bombaLigada       = false;
 bool          bombaManual       = false;
 unsigned long tempoInicioBomba  = 0;
@@ -136,16 +113,12 @@ float umidadeAntesBomba = 0.0f;
 bool bloquadoPorTemperatura = false;
 bool reducaoPorHumidade     = false;
 
-// ─────────────────────────────────────────────
-// MONITORAMENTO DE FALHA DE SENSORES
-// ─────────────────────────────────────────────
-int  falhasDHT_consecutivas   = 0;
-bool dhtOk                    = false;   // só fica true após 1ª leitura válida
-const int MAX_FALHAS_DHT      = 3;       // após 3 falhas seguidas, considera sensor desconectado
 
-// ============================================================
-// FUNÇÕES AUXILIARES
-// ============================================================
+int  falhasDHT_consecutivas   = 0;
+bool dhtOk                    = false;   
+const int MAX_FALHAS_DHT      = 3;       
+
+
 
 String getHorario() {
   struct tm ti;
@@ -160,13 +133,11 @@ String getHorario() {
   return String(buf);
 }
 
-// ============================================================
-// PERSISTÊNCIA – LittleFS + CSV
-// ============================================================
+
 
 void salvarHistorico() {
   File f = LittleFS.open("/historico.csv", "w");
-  if (!f) { Serial.println("⚠️ Erro ao abrir historico.csv"); return; }
+  if (!f) { Serial.println(" Erro ao abrir historico.csv"); return; }
 
   f.println("horario,temperatura,umidadeAr,umidadeSolo");
   int start = (historicoCount < MAX_HISTORICO) ? 0 : historicoIndex;
@@ -187,7 +158,7 @@ void carregarHistorico() {
   File f = LittleFS.open("/historico.csv", "r");
   if (!f) return;
 
-  f.readStringUntil('\n'); // pula cabeçalho
+  f.readStringUntil('\n'); 
   historicoCount = 0;
   historicoIndex = 0;
 
@@ -210,12 +181,12 @@ void carregarHistorico() {
   }
   historicoIndex = historicoCount % MAX_HISTORICO;
   f.close();
-  Serial.printf("📂 Histórico carregado: %d registros.\n", historicoCount);
+  Serial.printf(" Histórico carregado: %d registros.\n", historicoCount);
 }
 
 void salvarEventos() {
   File f = LittleFS.open("/eventos.csv", "w");
-  if (!f) { Serial.println("⚠️ Erro ao abrir eventos.csv"); return; }
+  if (!f) { Serial.println(" Erro ao abrir eventos.csv"); return; }
 
   f.println("horario,duracao_s,umidadeAntes,umidadeDepois,automatica");
   int start = (eventoCount < MAX_EVENTOS) ? 0 : eventoIndex;
@@ -229,7 +200,7 @@ void salvarEventos() {
              eventos[idx].automatica ? "sim" : "nao");
   }
   f.close();
-  Serial.println("💾 Eventos salvos em CSV.");
+  Serial.println(" Eventos salvos em CSV.");
 }
 
 void carregarEventos() {
@@ -237,7 +208,7 @@ void carregarEventos() {
   File f = LittleFS.open("/eventos.csv", "r");
   if (!f) return;
 
-  f.readStringUntil('\n'); // pula cabeçalho
+  f.readStringUntil('\n'); 
   eventoCount = 0;
   eventoIndex = 0;
 
@@ -262,7 +233,7 @@ void carregarEventos() {
   }
   eventoIndex = eventoCount % MAX_EVENTOS;
   f.close();
-  Serial.printf("📂 Eventos carregados: %d registros.\n", eventoCount);
+  Serial.printf(" Eventos carregados: %d registros.\n", eventoCount);
 }
 
 void salvarEstatisticas() {
@@ -278,7 +249,7 @@ void carregarEstatisticas() {
   File f = LittleFS.open("/stats.csv", "r");
   if (!f) return;
 
-  f.readStringUntil('\n'); // pula cabeçalho
+  f.readStringUntil('\n'); 
   String linha = f.readStringUntil('\n');
   linha.trim();
 
@@ -290,13 +261,11 @@ void carregarEstatisticas() {
   tempoTotalBombaMs = linha.substring(c2 + 1).toInt();
 
   f.close();
-  Serial.printf("📂 Stats carregados: %lu leituras, %lu acionamentos.\n",
+  Serial.printf(" Stats carregados: %lu leituras, %lu acionamentos.\n",
                 totalLeituras, totalAcionamentos);
 }
 
-// ============================================================
-// REGISTRO DE DADOS
-// ============================================================
+
 
 void registrarHistorico() {
   String h = getHorario();
@@ -329,9 +298,7 @@ void registrarEventoIrrigacao(unsigned long dur_ms, float antes, float depois, b
   salvarEstatisticas();
 }
 
-// ============================================================
-// HANDLERS DO WEBSERVER
-// ============================================================
+
 
 void handleIndex() {
   server.send_P(200, "text/html", HTML_PAGE);
@@ -435,7 +402,6 @@ void handleEstatisticas() {
   server.send(200, "application/json", json);
 }
 
-// ── CONTROLE MANUAL ──
 void handleLigarBomba() {
   if (!bloquadoPorTemperatura && !bombaLigada) {
     umidadeAntesBomba = umidadeSolo;
@@ -460,7 +426,7 @@ void handleDesligarBomba() {
   handleDados();
 }
 
-// ── DOWNLOAD CSV ──
+
 void handleDownloadHistorico() {
   if (!LittleFS.exists("/historico.csv")) {
     server.send(404, "text/plain", "Arquivo nao encontrado. Aguarde o primeiro registro (10 min).");
@@ -494,9 +460,7 @@ void handleDownloadStats() {
   f.close();
 }
 
-// ============================================================
-// SETUP
-// ============================================================
+
 
 void setup() {
   Serial.begin(115200);
@@ -507,40 +471,40 @@ void setup() {
   pinMode(PINO_DHT, INPUT_PULLUP);
   dht.begin();
 
-  // ── LittleFS ──
+  
   if (!LittleFS.begin(true)) {
-    Serial.println("⚠️ Falha ao montar LittleFS! Dados não serão persistidos.");
+    Serial.println(" Falha ao montar LittleFS! Dados não serão persistidos.");
   } else {
-    Serial.println("✅ LittleFS montado.");
+    Serial.println(" LittleFS montado.");
     carregarHistorico();
     carregarEventos();
     carregarEstatisticas();
   }
 
-  // ── WiFi ──
+  
   Serial.println("\nConectando ao WiFi...");
   WiFi.begin(WIFI_SSID, WIFI_PASS);
   while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
-  Serial.println("\n✅ WiFi conectado!");
+  Serial.println("\n WiFi conectado!");
   Serial.print("📡 IP: ");
   Serial.println(WiFi.localIP());
 
-  // ── NTP ──
+  
   configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, "pool.ntp.org", "a.ntp.br");
-  Serial.println("🕐 Sincronizando horário NTP...");
+  Serial.println(" Sincronizando horário NTP...");
   struct tm ti;
   if (getLocalTime(&ti)) {
     char buf[20];
     strftime(buf, sizeof(buf), "%d/%m/%Y %H:%M", &ti);
-    Serial.printf("✅ Horário: %s\n", buf);
+    Serial.printf(" Horário: %s\n", buf);
   } else {
-    Serial.println("⚠️  NTP não disponível, usando tempo relativo.");
+    Serial.println("  NTP não disponível, usando tempo relativo.");
   }
 
   inicioMonitoramento = millis();
   ultimoRegistro      = millis();
 
-  // ── Rotas ──
+  
   server.on("/",                   handleIndex);
   server.on("/api/dados",          handleDados);
   server.on("/api/historico",      handleHistorico);
@@ -553,19 +517,17 @@ void setup() {
   server.on("/download/stats",     handleDownloadStats);
 
   server.begin();
-  Serial.println("🌐 WebServer iniciado — porta 80");
+  Serial.println(" WebServer iniciado — porta 80");
   Serial.println("=========================================");
 }
 
-// ============================================================
-// LOOP
-// ============================================================
+
 
 void loop() {
   server.handleClient();
   unsigned long agora = millis();
 
-  // ── 1. Gerenciar timer da bomba ──
+  
   if (bombaLigada) {
     if (agora - tempoInicioBomba >= (unsigned long)TEMPO_BOMBA_MS) {
       digitalWrite(PINO_RELE, LOW);
@@ -579,15 +541,15 @@ void loop() {
     return;
   }
 
-  // ── 2. Espera pós-irrigação ──
+  
   if (fimBombaMs > 0 && (agora - fimBombaMs) < (unsigned long)ESPERA_DEPOIS_BOMBA_MS) return;
 
-  // ── 3. Período de leitura ──
+  
   if (agora - ultimaLeitura < PERIODO_LEITURA_MS) return;
   ultimaLeitura = agora;
   totalLeituras++;
 
-  // ── 4. Leitura DHT22 ──
+  
   float t = dht.readTemperature();
   float h = dht.readHumidity();
 
@@ -600,25 +562,23 @@ void loop() {
     falhasDHT_consecutivas++;
     if (falhasDHT_consecutivas >= MAX_FALHAS_DHT) {
       dhtOk = false;
-      Serial.println("⚠️  DHT22 sem resposta — sensor pode estar desconectado.");
+      Serial.println("  DHT22 sem resposta — sensor pode estar desconectado.");
     }
   }
 
-  // ── 5. Leitura solo ──
   int adcVal  = analogRead(PINO_SENSOR_SOLO);
   umidadeSolo = 100.0f * (float)(VALOR_SECO - adcVal) / (float)(VALOR_SECO - VALOR_UMIDO);
   umidadeSolo = constrain(umidadeSolo, 0.0f, 100.0f);
 
-  // ── 6. Limiar adaptativo ──
+ 
   limiar = UMIDADE_MINIMA;
   if (temperatura > TEMPERATURA_CALOR) limiar *= 1.10f;
   if (umidadeAr   > UMIDADE_AR_HUMIDO) limiar *= REDUCAO_HUMIDADE;
 
-  // ── 7. Regras de bloqueio ──
   bloquadoPorTemperatura = (temperatura > TEMPERATURA_MAXIMA);
   reducaoPorHumidade     = (umidadeAr   > UMIDADE_AR_HUMIDO);
 
-  // ── 8. Registro histórico (a cada 10 min) ──
+  
   if (agora - ultimoRegistro >= PERIODO_REGISTRO_MS) {
     registrarHistorico();
     ultimoRegistro = agora;
@@ -626,7 +586,7 @@ void loop() {
                   temperatura, umidadeAr, umidadeSolo);
   }
 
-  // ── 9. Controle automático ──
+  
   if (!bloquadoPorTemperatura && umidadeSolo < limiar) {
     Serial.printf("→ Solo SECO (%.1f%% < %.1f%%)! Acionando bomba...\n", umidadeSolo, limiar);
     umidadeAntesBomba = umidadeSolo;
@@ -636,13 +596,13 @@ void loop() {
     tempoInicioBomba = agora;
   }
 
-  // ── 10. Serial monitor ──
+  
   Serial.println("──────────────────────────────────────");
-  Serial.printf("🌡  Temp:      %.1f °C\n",  temperatura);
-  Serial.printf("💧  Umid. Ar: %.1f %%\n",   umidadeAr);
-  Serial.printf("🌱  Solo:     %.1f %%  (limiar: %.1f%%)\n", umidadeSolo, limiar);
-  Serial.printf("⚡  Bomba:    %s\n",         bombaLigada ? "LIGADA" : "desligada");
-  Serial.printf("📊  Leituras: %lu | Acionamentos: %lu\n", totalLeituras, totalAcionamentos);
-  if (bloquadoPorTemperatura) Serial.println("🚫 BLOQUEADO: Temperatura crítica!");
-  if (reducaoPorHumidade)     Serial.println("💧 REDUÇÃO:  Ar muito úmido!");
+  Serial.printf("  Temp:      %.1f °C\n",  temperatura);
+  Serial.printf("  Umid. Ar: %.1f %%\n",   umidadeAr);
+  Serial.printf("  Solo:     %.1f %%  (limiar: %.1f%%)\n", umidadeSolo, limiar);
+  Serial.printf("  Bomba:    %s\n",         bombaLigada ? "LIGADA" : "desligada");
+  Serial.printf("  Leituras: %lu | Acionamentos: %lu\n", totalLeituras, totalAcionamentos);
+  if (bloquadoPorTemperatura) Serial.println(" BLOQUEADO: Temperatura crítica!");
+  if (reducaoPorHumidade)     Serial.println(" REDUÇÃO:  Ar muito úmido!");
 }
